@@ -1,0 +1,284 @@
+# ==============================================
+# ADCO Project - Comprehensive .gitignore
+# Covers: Rust backend, Nuxt frontend, databases, IDE, OS
+# ==============================================
+
+# ==============================================
+# RUST BACKEND
+# ==============================================
+
+# Cargo build artifacts
+backend/target/
+backend/Cargo.lock
+
+# Rust debug info
+backend/**/*.pdb
+
+# ==============================================
+# JAVASCRIPT/TYPESCRIPT FRONTEND (Nuxt 3)
+# ==============================================
+
+# Dependencies
+frontend/node_modules/
+frontend/.pnpm-store/
+frontend/.yarn/
+frontend/.npm/
+
+# Build outputs
+frontend/.output/
+frontend/.nuxt/
+frontend/dist/
+frontend/build/
+
+# Nuxt dev/build generated
+frontend/.nitro/
+frontend/.cache/
+
+# Package manager lockfiles (choose one)
+frontend/package-lock.json
+frontend/yarn.lock
+frontend/pnpm-lock.yaml
+
+# ==============================================
+# SHARED DEPENDENCIES
+# ==============================================
+shared/node_modules/
+shared/dist/
+shared/build/
+
+# ==============================================
+# DATABASES & DATA
+# ==============================================
+
+# PostgreSQL
+*.sql.backup
+*.dump
+*.pg_dump
+pgdata/
+postgres-data/
+
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# Database migration backups
+sql/backups/
+*.migration.backup
+
+# ==============================================
+# ENVIRONMENT & SECRETS
+# ==============================================
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+.env.development
+backend/.env*
+frontend/.env*
+
+# API Keys and secrets
+secrets/
+*.key
+*.pem
+*.crt
+api_keys.txt
+credentials.json
+
+# ==============================================
+# LOGS & TEMPORARY FILES
+# ==============================================
+
+# Application logs
+*.log
+logs/
+backend/logs/
+frontend/logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ==============================================
+# IDE & EDITOR FILES
+# ==============================================
+
+# VS Code
+.vscode/settings.json
+.vscode/extensions.json
+.vscode/c_cpp_properties.json
+# Keep launch.json and tasks.json as they're project-specific
+# .vscode/launch.json
+# .vscode/tasks.json
+
+# IntelliJ IDEA / WebStorm
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Vim
+.*.sw?
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ==============================================
+# OPERATING SYSTEM FILES
+# ==============================================
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ==============================================
+# DOCKER & CONTAINERIZATION
+# ==============================================
+.dockerignore
+docker-compose.override.yml
+docker-data/
+volumes/
+
+# ==============================================
+# CI/CD & DEPLOYMENT
+# ==============================================
+.github/workflows/secrets.yml
+deployment/secrets/
+k8s/secrets/
+terraform/*.tfstate*
+terraform/.terraform/
+
+# ==============================================
+# MONITORING & OBSERVABILITY  
+# ==============================================
+grafana/data/
+prometheus/data/
+jaeger/data/
+
+# ==============================================
+# LLM & AI MODELS
+# ==============================================
+
+# Local model files
+models/
+*.safetensors
+*.onnx
+*.bin
+*.pt
+*.pth
+embeddings/
+
+# Vector database data
+qdrant/data/
+weaviate/data/
+pinecone/cache/
+
+# ==============================================
+# BACKUP & ARCHIVES
+# ==============================================
+*.backup
+*.bak
+*.tar.gz
+*.zip
+*.7z
+*.rar
+backups/
+
+# ==============================================
+# TESTING & COVERAGE
+# ==============================================
+
+# Rust testing
+backend/tarpaulin-report.html
+backend/cobertura.xml
+backend/lcov.info
+
+# JavaScript testing  
+frontend/coverage/
+frontend/.nyc_output/
+frontend/junit.xml
+
+# ==============================================
+# DEVELOPMENT ARTIFACTS  
+# ==============================================
+
+# Hot reload
+frontend/.nuxt/
+frontend/.nitro/
+.cache/
+
+# Development databases
+dev.db
+test.db
+local.db
+
+# Local documentation builds
+docs/_build/
+docs/build/
+site/
+
+# ==============================================
+# PROJECT-SPECIFIC EXCLUDES
+# ==============================================
+
+# ADCO specific temporary files
+research/drafts/
+content/temp/
+posts/staging/
+
+# API response caches
+api_cache/
+search_cache/
+
+# Learning logs (keep in git for progress tracking)
+# backend/learning_logs/
+
+# Generated TypeScript types (if auto-generated)
+# shared/types/generated/
