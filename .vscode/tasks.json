@@ -1,0 +1,69 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cargo",
+            "command": "build",
+            "args": [
+                "--bin=adco-backend"
+            ],
+            "group": "build",
+            "label": "cargo-build-debug",
+            "options": {
+                "cwd": "${workspaceFolder}/backend"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
+            "type": "cargo", 
+            "command": "build",
+            "args": [
+                "--release",
+                "--bin=adco-backend"
+            ],
+            "group": "build",
+            "label": "cargo-build-release",
+            "options": {
+                "cwd": "${workspaceFolder}/backend"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "silent", 
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
+            "type": "cargo",
+            "command": "run",
+            "args": [
+                "--bin=adco-backend"
+            ],
+            "group": "build",
+            "label": "cargo-run",
+            "options": {
+                "cwd": "${workspaceFolder}/backend"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": [
+                "$rustc"
+            ]
+        }
+    ]
+}

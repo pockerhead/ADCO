@@ -48,6 +48,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `SYSTEM_PROMT.md` - моя личность и методика обучения  
 - `backend/learning_logs/` - ваш прогресс с августа 2025
 - `BACKEND_DOMAINS.md` - архитектурный план для изучения через практику
+- `backend/BACKLOG_IDEAS.md` - идеи для будущих улучшений (НЕ для MVP!)
 
 ## Принципы разработки
 
