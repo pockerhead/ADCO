@@ -31,7 +31,7 @@ headless_chrome = "1.0"
 readability = "0.3"
 
 # RIG-LLM Integration
-rig-core = "0.2"
+rig-core = "^0"
 
 # Scheduling
 tokio-cron-scheduler = "0.10"

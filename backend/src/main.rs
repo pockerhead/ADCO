@@ -10,16 +10,19 @@ use domain::posts::models::Post;
 use uuid::Uuid;
 use domain::infra::postgres::sources_repo::SourcesRepositoryImpl;
 use domain::sources::repository::SourceRepository;
+use domain::llm::RigTest;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenv().ok();
-    let database_url = std::env::var("DATABASE_URL")?;
-    println!("Database URL: {:?}", database_url);
-    let pool: PgPool = PgPool::connect(&database_url).await?;
-    println!("Pool created");
-    test_posts_repo(&pool).await?;
-    test_sources_repo(&pool).await?;
+    // let database_url = std::env::var("DATABASE_URL")?;
+    // println!("Database URL: {:?}", database_url);
+    // let pool: PgPool = PgPool::connect(&database_url).await?;
+    // println!("Pool created");
+    // test_posts_repo(&pool).await?;
+    // test_sources_repo(&pool).await?;
+    let rig_test = RigTest::new();
+    rig_test.test_anthropic().await?;
     return Ok(())
 }
 
