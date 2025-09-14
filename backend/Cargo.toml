@@ -16,22 +16,24 @@ hyper = "1.0"
 
 
 # Database
-sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "json"] }
+sqlx = { version = "^0", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "json"] }
 uuid = { version = "1.0", features = ["v4", "serde"] }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-
+quick-xml = { version = "^0", features = ["serialize"] }
 
 # HTTP client for external APIs
 reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false }
 scraper = "0.24"
 headless_chrome = "1.0"
 readability = "0.3"
+pdf-extract = "0.7"
 
 # RIG-LLM Integration
 rig-core = "^0"
+rig-postgres = "^0"
 
 # Scheduling
 tokio-cron-scheduler = "0.10"
@@ -52,6 +54,9 @@ config = "0.14"
 
 # Environment variables
 dotenvy = "0.15"
+
+# Random
+rand = "^0"
 
 [dev-dependencies]
 # Testing

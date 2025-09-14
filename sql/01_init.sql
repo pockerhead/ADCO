@@ -17,18 +17,17 @@ CREATE TABLE sources (
   raw_text TEXT
 );
 
--- Chunks table: text chunks + embeddings for RAG
-CREATE TABLE chunks (
-  id SERIAL PRIMARY KEY,
-  source_id UUID REFERENCES sources(id),
-  text TEXT NOT NULL,
-  embedding VECTOR(1536),
-  meta JSONB,
-  created_at TIMESTAMPTZ DEFAULT now()
+-- RAG Documents table: rig-postgres compatible schema for vector storage
+CREATE TABLE documents (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  document JSONB NOT NULL,        -- Contains source_id, metadata, etc.
+  embedded_text TEXT NOT NULL,    -- Text chunk for embedding
+  embedding VECTOR(1536)          -- OpenAI text-embedding-3-small
 );
 
--- Index for fast vector similarity search
-CREATE INDEX ON chunks USING hnsw (embedding vector_cosine_ops);
+-- Index for fast vector similarity search (rig-postgres compatible)
+CREATE INDEX IF NOT EXISTS document_embeddings_idx ON documents
+USING hnsw(embedding vector_cosine_ops);
 
 -- Posts table: drafts/scheduled/published content
 CREATE TABLE posts (
@@ -64,7 +63,7 @@ CREATE TABLE prompts_memory (
 -- Indexes for performance
 CREATE INDEX idx_sources_url ON sources(url);
 CREATE INDEX idx_sources_fetched_at ON sources(fetched_at);
-CREATE INDEX idx_chunks_source_id ON chunks(source_id);
+CREATE INDEX idx_documents_jsonb_source_id ON documents USING BTREE ((document->>'source_id'));
 CREATE INDEX idx_posts_status ON posts(status);
 CREATE INDEX idx_posts_scheduled_at ON posts(scheduled_at);
 CREATE INDEX idx_metrics_post_id ON metrics(post_id);

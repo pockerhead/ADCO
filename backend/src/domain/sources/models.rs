@@ -36,6 +36,7 @@ pub enum SourceType {
     RSS,
     WebPage,
     API,
+    PDF,
 }
 
 impl From<String> for SourceType {
@@ -73,4 +74,25 @@ pub struct HackerNewsStory {
     pub object_id: String,
     #[serde(rename = "_tags")]
     pub tags: Vec<String>,
+}
+
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ArxivResponse {
+    pub feed: ArxivFeed,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ArxivFeed {
+    #[serde(rename = "entry", default)]
+    pub entry: Vec<ArxivEntry>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ArxivEntry {
+    pub id: String,
+    pub title: String,
+    pub summary: String,
+    pub published: String,
+    pub updated: String,
 }

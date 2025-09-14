@@ -1,5 +1,6 @@
 use reqwest;
-use crate::domain::sources::models::{HackerNewsResponse};
+use crate::domain::sources::models::{HackerNewsResponse, ArxivFeed, ArxivEntry};
+use quick_xml::de::from_str;
 
 #[derive(Debug, Clone)]
 pub struct HttpFetcher {
@@ -35,6 +36,20 @@ impl HttpFetcher {
         }
         let body = response.json::<HackerNewsResponse>().await?;
         Ok(body)
+    }
+
+    pub async fn search_arxiv(&self, query: &str) -> Result<Vec<ArxivEntry>, anyhow::Error> {
+        let url = format!("http://export.arxiv.org/api/query?search_query=all:{}&start=0&max_results=10",
+                         query.replace(" ", "+"));
+        let response = self.client.get(&url).send().await?;
+        let status = response.status().as_u16();
+        if status != 200 {
+            return Err(HttpFetchError::StatusCode(status).into());
+        }
+        let body = response.text().await?;
+        // Parse Atom XML using quick_xml
+        let feed: ArxivFeed = from_str(&body)?;
+        Ok(feed.entry)
     }
 }
 

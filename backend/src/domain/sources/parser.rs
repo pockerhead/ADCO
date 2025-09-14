@@ -5,10 +5,13 @@ use readability::extractor;
 use reqwest::Url;
 use scraper::{Html, Selector};
 use super::models::{Source, SourceType};
+use pdf_extract;
+use std::io::Cursor;
 
 enum ContentType {
     StaticPage,
     DynamicPage,
+    PdfFile,
 }
 
 pub struct HtmlParser;
@@ -23,7 +26,22 @@ impl HtmlParser {
         fetcher.fetch(url).await
     }
 
+    async fn fetch_pdf_bytes(&self, url: &str) -> Result<Vec<u8>, anyhow::Error> {
+        let client = reqwest::Client::new();
+        let response = client.get(url).send().await?;
+        if response.status() != 200 {
+            return Err(anyhow::anyhow!("Failed to fetch PDF: {}", response.status()));
+        }
+        let bytes = response.bytes().await?;
+        Ok(bytes.to_vec())
+    }
+
     pub async fn scrap_source_from_url(&self, url: &str) -> Result<Source, anyhow::Error> {
+        // Check if URL is PDF
+        if url.ends_with(".pdf") {
+            return self.parse_pdf_from_url(url).await;
+        }
+
         let html_content = self.parse_url(url).await?;
         let document = Html::parse_document(&html_content);
         match self.detect_content_type(&html_content).await? {
@@ -52,7 +70,25 @@ impl HtmlParser {
                     }
                 }
             }
+            ContentType::PdfFile => {
+                return self.parse_pdf_from_url(url).await;
+            }
         }
+    }
+
+    async fn parse_pdf_from_url(&self, url: &str) -> Result<Source, anyhow::Error> {
+        println!("PDF detected, parsing...");
+        let pdf_bytes = self.fetch_pdf_bytes(url).await?;
+        let cursor = Cursor::new(pdf_bytes);
+        let text = pdf_extract::extract_text_from_mem(cursor.get_ref())?;
+
+        // Extract title from URL or use filename
+        let title = url.split('/').last()
+            .unwrap_or("PDF Document")
+            .replace(".pdf", "");
+
+        println!("PDF parsed, text length: {}", text.len());
+        Ok(Source::new(url.to_string(), title, SourceType::WebPage, text))
     }
 
     // 1. Подсчет символов текста - если в <body> меньше 500 символов → DynamicPage

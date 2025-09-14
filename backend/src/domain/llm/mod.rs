@@ -1,3 +1,3 @@
-pub mod rigtest;
+pub mod agents;
 
-pub use rigtest::*;
+pub use agents::*;
