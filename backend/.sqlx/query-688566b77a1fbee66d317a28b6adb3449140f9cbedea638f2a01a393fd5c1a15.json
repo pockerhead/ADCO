@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE posts SET topic = $1, draft = $2, post_text = $3, status = $4, channel_id = $5, scheduled_at = $6, published_at = $7, meta = $8 WHERE id = $9",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Jsonb",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "688566b77a1fbee66d317a28b6adb3449140f9cbedea638f2a01a393fd5c1a15"
+}

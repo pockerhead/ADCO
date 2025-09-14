@@ -1,8 +1,10 @@
 use super::fetcher::HttpFetcher;
-use anyhow::anyhow;
 use anyhow::Result;
 use headless_chrome::{Browser, LaunchOptions};
+use readability::extractor;
+use reqwest::Url;
 use scraper::{Html, Selector};
+use super::models::{Source, SourceType};
 
 enum ContentType {
     StaticPage,
@@ -16,30 +18,39 @@ impl HtmlParser {
         HtmlParser {}
     }
 
-    async fn parse_url(&self, url: &str) -> Result<String, reqwest::Error> {
+    async fn parse_url(&self, url: &str) -> Result<String, anyhow::Error> {
         let fetcher = HttpFetcher::new();
         fetcher.fetch(url).await
     }
 
-    pub async fn scrap_text_from_url(&self, url: &str) -> Result<String, anyhow::Error> {
+    pub async fn scrap_source_from_url(&self, url: &str) -> Result<Source, anyhow::Error> {
         let html_content = self.parse_url(url).await?;
         let document = Html::parse_document(&html_content);
-        let selector = Selector::parse("body").unwrap();
-        let body = document
-            .select(&selector)
-            .next()
-            .ok_or(anyhow::format_err!("No body tag found"))?;
         match self.detect_content_type(&html_content).await? {
             ContentType::StaticPage => {
                 println!("Static page detected");
-                let text = body.text().collect::<Vec<_>>().join(" ");
-                return Ok(text);
+                let html_or_text = document.html();
+                let document = extractor::extract(&mut html_or_text.as_bytes(), &Url::parse(url)?)?;
+                let text = document.text;
+                return Ok(Source::new(url.to_string(), document.title, SourceType::WebPage, text));
             }
             ContentType::DynamicPage => {
                 // Placeholder for dynamic content handling
                 // In a real implementation, you might use a headless browser here
                 println!("Dynamic page detected");
-                return self.crawl_text_from_url(url, 2).await;
+                match self.crawl_text_from_url(url).await {
+                    Ok(text) => {
+                        let html_or_text = text;
+                        let document = extractor::extract(&mut html_or_text.as_bytes(), &Url::parse(url)?)?;
+                        let text = document.text;
+                        println!("document title: {}", document.title);
+                        println!("document text length: {}", text.len());
+                        return Ok(Source::new(url.to_string(), document.title, SourceType::WebPage, text));
+                    }
+                    Err(e) => {
+                        return Err(e);
+                    }
+                }
             }
         }
     }
@@ -80,7 +91,6 @@ impl HtmlParser {
     async fn crawl_text_from_url(
         &self,
         url: &str,
-        _max_depth: usize,
     ) -> Result<String, anyhow::Error> {
         let browser = Browser::new(
             LaunchOptions::default_builder()
@@ -92,32 +102,13 @@ impl HtmlParser {
         tab.navigate_to(url)?;
 
         // Ждем загрузки JavaScript
-        std::thread::sleep(std::time::Duration::from_secs(3));
+        std::thread::sleep(std::time::Duration::from_secs(2));
 
         // Получаем HTML после рендеринга
         let html_content = tab.get_content()?;
 
         // Парсим HTML для извлечения текста
         let document = Html::parse_document(&html_content);
-        let selectors = [
-            "article",
-            "main",
-            ".content",
-            ".post",
-            ".entry-content",
-            "body",
-        ];
-        for sel in selectors.iter() {
-            match Selector::parse(sel) {
-                Ok(selector) => {
-                    if let Some(content) = document.select(&selector).next() {
-                        let text = content.text().collect::<Vec<_>>().join(" ");
-                        return Ok(text);
-                    }
-                }
-                Err(_) => continue, // Пропускаем некорректные селекторы
-            }
-        }
-        return Err(anyhow!("Error"));
+        Ok(document.html())
     }
 }

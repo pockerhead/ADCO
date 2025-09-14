@@ -10,11 +10,13 @@
 use chrono::offset::Utc;
 use chrono::DateTime;
 use serde::{Deserialize, Serialize};
+use sqlx::Type;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[sqlx(type_name = "source")]
 pub struct Source {
-    pub id: Uuid,
+    pub id: Option<Uuid>,
     pub url: String,
     pub title: String,
     pub source_type: SourceType,
@@ -22,11 +24,35 @@ pub struct Source {
     pub raw_text: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+impl Source {
+    pub fn new(url: String, title: String, source_type: SourceType, raw_text: String) -> Self {
+        Self { id: None, url, title, source_type, fetched_at: Some(chrono::Utc::now()), raw_text }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Type)]
+#[sqlx(type_name = "source_type")]
 pub enum SourceType {
     RSS,
     WebPage,
     API,
+}
+
+impl From<String> for SourceType {
+    fn from(source_type: String) -> Self {
+        match source_type.as_str() {
+            "rss" => SourceType::RSS,
+            "web_page" => SourceType::WebPage,
+            "api" => SourceType::API,
+            _ => SourceType::RSS,
+        }
+    }
+}
+
+impl std::fmt::Display for SourceType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

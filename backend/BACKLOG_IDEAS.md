@@ -74,6 +74,59 @@ pub struct PostMeta {
 
 ## 🧠 Content Domain Ideas
 
+### 📝 RAG System Extensions (Приоритет: Высокий)
+**Дата добавления**: 2025-09-14
+
+#### Prompt Memory RAG
+**Проблема**: Нет переиспользования успешных промптов и стилистических решений.
+
+**Решение**:
+```sql
+CREATE TABLE prompt_memory_chunks (
+  id SERIAL PRIMARY KEY,
+  prompt_memory_id INT REFERENCES prompts_memory(id),
+  text TEXT NOT NULL,
+  embedding VECTOR(1536),
+  context_type TEXT, -- 'style', 'taboo', 'hashtag', 'voice'
+  success_score REAL, -- оценка успешности
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+**Польза**:
+- Консистентность стиля канала
+- Переиспользование удачных формулировок
+- Автоматическое обучение на успешных примерах
+
+#### LLM History RAG
+**Проблема**: Теряется качественный контент из Claude research и GPT styling.
+
+**Решение**:
+```sql
+CREATE TABLE llm_interactions (
+  id SERIAL PRIMARY KEY,
+  model_type TEXT NOT NULL, -- 'claude_research', 'gpt_styling'
+  prompt TEXT NOT NULL,
+  response TEXT NOT NULL,
+  quality_score REAL, -- на основе метрик поста
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE llm_response_chunks (
+  id SERIAL PRIMARY KEY,
+  interaction_id INT REFERENCES llm_interactions(id),
+  text TEXT NOT NULL,
+  embedding VECTOR(1536),
+  response_type TEXT, -- 'research_finding', 'style_guideline'
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+**Польза**:
+- Экономия на повторных LLM запросах
+- Накопление экспертизы в домене
+- Улучшение качества через историю
+
 ### Chunking стратегии:
 - Adaptive chunking по смыслу
 - Overlap между чанками

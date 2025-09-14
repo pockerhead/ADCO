@@ -13,28 +13,53 @@ use serde::{Serialize, Deserialize};
 use chrono::DateTime;
 use chrono::offset::Utc;
 use uuid::Uuid;
+use sqlx::Type;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[sqlx(type_name = "post")]
 pub struct Post {
-    pub id: Uuid,
+    pub id: Option<Uuid>,
     pub topic: String,
     pub draft: String,
     pub post_text: String,
     pub status: PostStatus,
-    pub channel_id: i32,
+    pub channel_id: String,
     pub scheduled_at: Option<DateTime<Utc>>,
     pub published_at: Option<DateTime<Utc>>,
     pub meta: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Type)]
+#[sqlx(type_name = "post_status")]
 pub enum PostStatus {
     Draft,
     Scheduled,
     Published,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+impl From<String> for PostStatus {
+    fn from(status: String) -> Self {
+        match status.as_str() {
+            "draft" => PostStatus::Draft,
+            "scheduled" => PostStatus::Scheduled,
+            "published" => PostStatus::Published,
+            _ => PostStatus::Draft,
+        }
+    }
+}
+
+impl std::fmt::Display for PostStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            PostStatus::Draft => write!(f, "draft"),
+            PostStatus::Scheduled => write!(f, "scheduled"),
+            PostStatus::Published => write!(f, "published"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[sqlx(type_name = "post_meta")]
 pub struct PostMeta {
     pub title: Option<String>,
     pub description: Option<String>,
@@ -43,9 +68,9 @@ pub struct PostMeta {
 
 impl Post {
 
-    pub fn new(topic: String, draft: String, post_text: String, channel_id: i32) -> Self {
+    pub fn new(topic: String, draft: String, post_text: String, channel_id: String) -> Self {
         Post {
-            id: Uuid::new_v4(),
+            id: None,
             topic,
             draft,
             post_text,
