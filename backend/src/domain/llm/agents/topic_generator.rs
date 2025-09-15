@@ -36,8 +36,16 @@ impl TopicGenerator {
         let mut rng = rng();
         let random_theme = themes.choose(&mut rng).unwrap();
         println!("========== Random theme: {}", random_theme);
-        let prompt: String = format!("Generate a topic for a blog post about the latest trends in {random_theme}. Today's date: {}. Provide result in JSON format with the following fields: topic, search_query WITHOUT ANY OTHER TEXT OR MARKDOWN. Search query should be a single word or phrase that can be used to search for relevant sources.", today_date_string);
-        // Prompt the agent and print the response
+        let prompt: String = format!(
+            "Generate a topic for a blog post about the latest trends in {random_theme}. 
+            Focus only on developments and news from the last 30 days (do not overuse the year). 
+            Today's date: {}. 
+            Provide result in pure JSON format with the following fields: 
+            topic, search_query. 
+            The search_query must be a short word or phrase suitable for searching relevant sources from the last month. 
+            Do not include any extra text, explanations, or markdown.",
+            today_date_string
+        );        // Prompt the agent and print the response
         let response = agent
             .prompt(prompt.to_string())
             .await?;

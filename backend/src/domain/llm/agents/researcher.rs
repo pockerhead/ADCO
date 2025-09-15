@@ -1,6 +1,8 @@
 use dotenvy::dotenv;
 use rig::{
-    client::CompletionClient, completion::Prompt, providers::{anthropic::{self, CLAUDE_3_5_SONNET}}
+    client::CompletionClient,
+    completion::Prompt,
+    providers::anthropic::{self, CLAUDE_3_5_SONNET},
 };
 use serde::{Deserialize, Serialize};
 
@@ -18,30 +20,39 @@ impl Researcher {
         Self {}
     }
 
-    pub async fn research(&self, topic: String, context: String) -> Result<ResearcherResult, anyhow::Error> {
+    pub async fn research(
+        &self,
+        topic: String,
+        context: String,
+    ) -> Result<ResearcherResult, anyhow::Error> {
         dotenv().ok();
         let client = anthropic::Client::new(
             &std::env::var("ANTHROPIC_API_KEY").expect("ANTHROPIC_API_KEY not set"),
         );
+        let system_prompt = "
+Your job: gather and explain advanced AI/tech/science topics in a **clear scientific-popular style**.  
 
+Rules:  
+- Use accessible language — imagine a curious reader with no PhD.  
+- Always **unpack complex terms and concepts** (give a short definition or analogy).  
+- Structure output: TL;DR → key points → details with explanations.  
+- Avoid slang, jokes, or philosophy. Neutral, precise, digestible.    
+- Provide just plain text without any other text or markdown    
+";
         // Create agent with a single context prompt
         let agent = client
-                .agent("claude-sonnet-4-20250514")
-                .preamble("You are a helpful assistant that researches a topic with the given context and provides a summary of the research.")
-                .max_tokens(800)
-                .temperature(0.5)
-                .build();
+            .agent("claude-sonnet-4-20250514")
+            .preamble(system_prompt)
+            .max_tokens(800)
+            .temperature(0.5)
+            .build();
 
-        let prompt = format!("Research the topic:\n\n{topic}.\nContext from internet search:\n\n{context}.\nProvide just plain text without any other text or markdown. Research must be less than {RESEARCH_MAX_WORDS_LENGTH} words.");
+        let prompt = format!("Research the topic:\n\n{topic}.\nContext from internet search:\n\n{context}.\nResearch must be less than {RESEARCH_MAX_WORDS_LENGTH} words.");
 
         // Prompt the agent and print the response
-        let response = agent
-            .prompt(prompt)
-            .await?;
+        let response = agent.prompt(prompt).await?;
 
-        let result = ResearcherResult {
-            content: response,
-        };
+        let result = ResearcherResult { content: response };
 
         Ok(result)
     }
