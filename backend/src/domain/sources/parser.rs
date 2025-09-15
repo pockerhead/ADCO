@@ -36,10 +36,10 @@ impl HtmlParser {
         Ok(bytes.to_vec())
     }
 
-    pub async fn scrap_source_from_url(&self, url: &str) -> Result<Source, anyhow::Error> {
+    pub async fn scrap_source_from_url(&self, url: &str, title: Option<&str>) -> Result<Source, anyhow::Error> {
         // Check if URL is PDF
         if url.ends_with(".pdf") {
-            return self.parse_pdf_from_url(url).await;
+            return self.parse_pdf_from_url(url, title).await;
         }
 
         let html_content = self.parse_url(url).await?;
@@ -50,7 +50,7 @@ impl HtmlParser {
                 let html_or_text = document.html();
                 let document = extractor::extract(&mut html_or_text.as_bytes(), &Url::parse(url)?)?;
                 let text = document.text;
-                return Ok(Source::new(url.to_string(), document.title, SourceType::WebPage, text));
+                return Ok(Source::new(url.to_string(), title.unwrap_or(&document.title).to_string(), SourceType::WebPage, text));
             }
             ContentType::DynamicPage => {
                 // Placeholder for dynamic content handling
@@ -63,7 +63,7 @@ impl HtmlParser {
                         let text = document.text;
                         println!("document title: {}", document.title);
                         println!("document text length: {}", text.len());
-                        return Ok(Source::new(url.to_string(), document.title, SourceType::WebPage, text));
+                        return Ok(Source::new(url.to_string(), title.unwrap_or(&document.title).to_string(), SourceType::WebPage, text));
                     }
                     Err(e) => {
                         return Err(e);
@@ -71,24 +71,24 @@ impl HtmlParser {
                 }
             }
             ContentType::PdfFile => {
-                return self.parse_pdf_from_url(url).await;
+                return self.parse_pdf_from_url(url, title).await;
             }
         }
     }
 
-    async fn parse_pdf_from_url(&self, url: &str) -> Result<Source, anyhow::Error> {
+    async fn parse_pdf_from_url(&self, url: &str, title: Option<&str>) -> Result<Source, anyhow::Error> {
         println!("PDF detected, parsing...");
         let pdf_bytes = self.fetch_pdf_bytes(url).await?;
         let cursor = Cursor::new(pdf_bytes);
         let text = pdf_extract::extract_text_from_mem(cursor.get_ref())?;
 
         // Extract title from URL or use filename
-        let title = url.split('/').last()
+        let pdf_title = url.split('/').last()
             .unwrap_or("PDF Document")
             .replace(".pdf", "");
 
         println!("PDF parsed, text length: {}", text.len());
-        Ok(Source::new(url.to_string(), title, SourceType::WebPage, text))
+        Ok(Source::new(url.to_string(), title.unwrap_or(&pdf_title).to_string(), SourceType::WebPage, text))
     }
 
     // 1. Подсчет символов текста - если в <body> меньше 500 символов → DynamicPage

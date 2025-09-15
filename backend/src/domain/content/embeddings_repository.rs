@@ -1,12 +1,11 @@
 use crate::domain::content::chunker::Chunk;
 use rig::{
-    embeddings::{EmbeddingModel, EmbeddingsBuilder},
+    embeddings::{EmbeddingsBuilder},
     providers::openai::{self},
     vector_store::{InsertDocuments, VectorSearchRequest, VectorStoreIndex},
 };
 use rig_postgres::PostgresVectorStore;
 use sqlx::PgPool;
-use tracing::Instrument;
 
 pub struct EmbeddingsRepository {
     pg_pool: PgPool,
@@ -23,15 +22,19 @@ impl EmbeddingsRepository {
     }
 
     pub async fn save_chunks(&self, chunks: Vec<Chunk>) -> Result<(), anyhow::Error> {
-        let documents = EmbeddingsBuilder::new(self.model.clone())
-            .documents(chunks)
-            .unwrap()
-            .build()
-            .await?;
-
         let vector_store =
             PostgresVectorStore::with_defaults(self.model.clone(), self.pg_pool.clone());
-        vector_store.insert_documents(documents).await?;
+
+        // Process chunks one by one to avoid token limit
+        for chunk in chunks {
+            let documents = EmbeddingsBuilder::new(self.model.clone())
+                .documents(vec![chunk])  // Process single chunk at a time
+                .unwrap()
+                .build()
+                .await?;
+
+            vector_store.insert_documents(documents).await?;
+        }
         Ok(())
     }
 

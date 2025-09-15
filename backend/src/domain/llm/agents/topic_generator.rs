@@ -37,14 +37,32 @@ impl TopicGenerator {
         let random_theme = themes.choose(&mut rng).unwrap();
         println!("========== Random theme: {}", random_theme);
         let prompt: String = format!(
-            "Generate a topic for a blog post about the latest trends in {random_theme}. 
-            Focus only on developments and news from the last 30 days (do not overuse the year). 
-            Today's date: {}. 
-            Provide result in pure JSON format with the following fields: 
-            topic, search_query. 
-            The search_query must be a short word or phrase suitable for searching relevant sources from the last month. 
-            Do not include any extra text, explanations, or markdown.",
-            today_date_string
+            "Generate an abstract, timeless topic for a popular science blog post about {random_theme}.
+
+            IMPORTANT RULES:
+            - Create CONCEPTUAL topics, not news-based or time-specific ones
+            - Focus on fundamental principles, mechanisms, and fascinating questions
+            - Use intriguing formats like 'How does...', 'Why do...', 'What happens if...', 'The science behind...'
+            - Avoid mentioning specific years, months, dates, or 'latest trends'
+            - Generate topics that would be interesting in any year
+            - Think about eternal questions that make people curious about science
+
+            Examples of GOOD topics:
+            - 'How do brain cells decide what to remember and what to forget?'
+            - 'Why does quantum entanglement seem to break the rules of reality?'
+            - 'What happens to consciousness when we fall asleep?'
+            - 'The hidden mathematics behind viral spread'
+
+            Examples of BAD topics (avoid these):
+            - 'Latest AI breakthroughs in 2025'
+            - 'Recent discoveries in neuroscience'
+            - 'New trends in brain-computer interfaces'
+
+            Provide result in pure JSON format with the following fields:
+            topic (an intriguing, timeless question or concept about {random_theme}),
+            search_query (abstract keywords for finding relevant scientific sources, no dates).
+
+            Do not include any extra text, explanations, or markdown."
         );        // Prompt the agent and print the response
         let response = agent
             .prompt(prompt.to_string())
