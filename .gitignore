@@ -14,6 +14,9 @@ backend/Cargo.lock
 # Rust debug info
 backend/**/*.pdb
 
+# Generated posts directory
+backend/posts/
+
 # ==============================================
 # JAVASCRIPT/TYPESCRIPT FRONTEND (Nuxt 3)
 # ==============================================
@@ -272,6 +275,7 @@ site/
 research/drafts/
 content/temp/
 posts/staging/
+posts/
 
 # API response caches
 api_cache/
