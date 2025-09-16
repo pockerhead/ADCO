@@ -1,54 +1,21 @@
 # ==============================================
 # ADCO Project - Comprehensive .gitignore
-# Covers: Rust backend, Nuxt frontend, databases, IDE, OS
+# Covers: Rust app, databases, IDE, OS
 # ==============================================
 
 # ==============================================
-# RUST BACKEND
+# RUST APP
 # ==============================================
 
 # Cargo build artifacts
-backend/target/
-backend/Cargo.lock
+app/target/
+app/Cargo.lock
 
 # Rust debug info
-backend/**/*.pdb
+app/**/*.pdb
 
 # Generated posts directory
-backend/posts/
-
-# ==============================================
-# JAVASCRIPT/TYPESCRIPT FRONTEND (Nuxt 3)
-# ==============================================
-
-# Dependencies
-frontend/target/
-frontend/node_modules/
-frontend/.pnpm-store/
-frontend/.yarn/
-frontend/.npm/
-
-# Build outputs
-frontend/.output/
-frontend/.nuxt/
-frontend/dist/
-frontend/build/
-
-# Nuxt dev/build generated
-frontend/.nitro/
-frontend/.cache/
-
-# Package manager lockfiles (choose one)
-frontend/package-lock.json
-frontend/yarn.lock
-frontend/pnpm-lock.yaml
-
-# ==============================================
-# SHARED DEPENDENCIES
-# ==============================================
-shared/node_modules/
-shared/dist/
-shared/build/
+app/posts/
 
 # ==============================================
 # DATABASES & DATA
@@ -80,8 +47,7 @@ sql/backups/
 .env.production
 .env.staging
 .env.development
-backend/.env*
-frontend/.env*
+app/.env*
 
 # API Keys and secrets
 secrets/
@@ -98,8 +64,7 @@ credentials.json
 # Application logs
 *.log
 logs/
-backend/logs/
-frontend/logs/
+app/logs/
 
 # Temporary files
 *.tmp
@@ -238,32 +203,32 @@ backups/
 # ==============================================
 
 # Rust testing
-backend/tarpaulin-report.html
-backend/cobertura.xml
-backend/lcov.info
+app/tarpaulin-report.html
+app/cobertura.xml
+app/lcov.info
 
 # JavaScript testing  
-frontend/coverage/
-frontend/.nyc_output/
-frontend/junit.xml
+app/coverage/
+app/.nyc_output/
+app/junit.xml
 
 # ==============================================
 # DEVELOPMENT ARTIFACTS  
 # ==============================================
 
 # Hot reload
-frontend/.nuxt/
-frontend/.nitro/
+app/.nuxt/
+app/.nitro/
 .cache/
 
 # Development databases
-dev.db
+app/dev.db
 test.db
-local.db
+app/local.db
 
 # Local documentation builds
-docs/_build/
-docs/build/
+app/docs/_build/
+app/docs/build/
 site/
 
 # ==============================================
@@ -272,9 +237,9 @@ site/
 
 # ADCO specific temporary files
 research/drafts/
-content/temp/
+app/content/temp/
 posts/staging/
-posts/
+app/posts/
 
 # API response caches
 api_cache/
@@ -282,6 +247,9 @@ search_cache/
 
 # Claude Code settings
 .claude/
+
+# Reference Leptos project
+reference/
 
 # Learning logs (keep in git for progress tracking)
 # backend/learning_logs/

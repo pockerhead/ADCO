@@ -6,73 +6,99 @@ authors = ["ADCO Team"]
 description = "Async Dev Content Orchestrator - Backend API"
 license = "MIT"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
 # Web server
-axum = "0.7"
-tokio = { version = "1.0", features = ["full"] }
-tower = "0.4"
-tower-http = { version = "0.5", features = ["cors", "trace"] }
-hyper = "1.0"
+axum = { version = "0.8.0", optional = true }
+tokio = { version = "1.47.1", features = ["full", "rt-multi-thread"], optional = true }
+tower = "0.4.13"
+tower-http = { version = "0.6.0", features = ["cors", "trace"] }
+hyper = "1.7.0"
 
 # OnceCell
-once_cell = "^0"
+once_cell = "0.2.4"
 
 # Database
-sqlx = { version = "^0", features = [
+sqlx = { version = "0.8.6", features = [
     "runtime-tokio-rustls",
     "postgres",
     "uuid",
     "chrono",
     "json",
 ] }
-uuid = { version = "1.0", features = ["v4", "serde"] }
+uuid = { version = "1.18.1", features = ["v4", "serde"] }
 
 # Serialization
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-quick-xml = { version = "^0", features = ["serialize"] }
+serde = { version = "1.0.221", features = ["derive"] }
+serde_json = "1.0.144"
+quick-xml = { version = "0.36.2", features = ["serialize"] }
 
 # HTTP client for external APIs
-reqwest = { version = "0.11", features = [
+reqwest = { version = "0.11.27", features = [
     "json",
     "rustls-tls",
 ], default-features = false }
-scraper = "0.24"
-headless_chrome = "1.0"
-readability = "0.3"
-pdf-extract = "0.7"
+scraper = "0.24.0"
+headless_chrome = "1.0.18"
+readability = "0.3.0"
+pdf-extract = "0.7.12"
 
 # RIG-LLM Integration
-rig-core = "^0"
-rig-postgres = "^0"
+rig-core = "0.19.0"
+rig-postgres = "0.1.19"
 
 # Scheduling
-tokio-cron-scheduler = "0.10"
+tokio-cron-scheduler = "0.10.2"
 
 # Time handling
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { version = "0.4.42", features = ["serde"] }
 
 # Telegram bot
 teloxide = { version = "0.17.0", features = ["macros"] }
-pretty_env_logger = "0.5"
+pretty_env_logger = "0.5.0"
 
 # Logging and stdio
-log = "0.4"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+log = "0.4.28"
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
 
 # Error handling
-thiserror = "1.0"
-anyhow = "1.0"
+thiserror = "1.0.69"
+anyhow = "1.0.99"
 
 # Configuration
-config = "0.14"
+config = "0.14.1"
 
 # Environment variables
-dotenvy = "0.15"
+dotenvy = "0.15.7"
 
 # Random
-rand = "^0"
+rand = "0.9.2"
+
+# Leptos SSR Frontend
+leptos = { version = "0.8.0", optional = true }
+leptos_router = { version = "0.8.0", optional = true }
+console_error_panic_hook = { version = "0.1", optional = true }
+leptos_axum = { version = "0.8.0", optional = true }
+leptos_meta = { version = "0.8.0", optional = true }
+wasm-bindgen = { version = "=0.2.101", optional = true }
+
+[features]
+hydrate = [
+    "leptos/hydrate",
+    "dep:console_error_panic_hook",
+    "dep:wasm-bindgen",
+]
+ssr = [
+    "dep:axum",
+    "dep:tokio",
+    "dep:leptos_axum",
+    "leptos/ssr",
+    "leptos_meta/ssr",
+    "leptos_router/ssr",
+]
 
 [dev-dependencies]
 # Testing
@@ -89,3 +115,73 @@ opt-level = 3
 lto = true
 codegen-units = 1
 panic = "abort"
+
+# WASM optimization profile
+[profile.wasm-release]
+inherits = "release"
+opt-level = 'z'
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[package.metadata.leptos]
+# The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name
+output-name = "reference"
+
+# The site root folder is where cargo-leptos generate all output. WARNING: all content of this folder will be erased on a rebuild. Use it in your server setup.
+site-root = "target/site"
+
+# The site-root relative folder where all compiled output (JS, WASM and CSS) is written
+# Defaults to pkg
+site-pkg-dir = "pkg"
+
+# [Optional] The source CSS file. If it ends with .sass or .scss then it will be compiled by dart-sass into CSS. The CSS is optimized by Lightning CSS before being written to <site-root>/<site-pkg>/app.css
+style-file = "style/main.scss"
+# Assets source dir. All files found here will be copied and synchronized to site-root.
+# The assets-dir cannot have a sub directory with the same name/path as site-pkg-dir.
+#
+# Optional. Env: LEPTOS_ASSETS_DIR.
+assets-dir = "public"
+
+# The IP and port (ex: 127.0.0.1:3000) where the server serves the content. Use it in your server setup.
+site-addr = "127.0.0.1:3000"
+
+# The port to use for automatic reload monitoring
+reload-port = 3001
+
+# [Optional] Command to use when running end2end tests. It will run in the end2end dir.
+#   [Windows] for non-WSL use "npx.cmd playwright test"
+#   This binary name can be checked in Powershell with Get-Command npx
+end2end-cmd = "npx playwright test"
+end2end-dir = "end2end"
+
+#  The browserlist query used for optimizing the CSS.
+browserquery = "defaults"
+
+# The environment Leptos will run in, usually either "DEV" or "PROD"
+env = "DEV"
+
+# The features to use when compiling the bin target
+#
+# Optional. Can be over-ridden with the command line parameter --bin-features
+bin-features = ["ssr"]
+
+# If the --no-default-features flag should be used when compiling the bin target
+#
+# Optional. Defaults to false.
+bin-default-features = false
+
+# The features to use when compiling the lib target
+#
+# Optional. Can be over-ridden with the command line parameter --lib-features
+lib-features = ["hydrate"]
+
+# If the --no-default-features flag should be used when compiling the lib target
+#
+# Optional. Defaults to false.
+lib-default-features = false
+
+# The profile to use for the lib target when compiling for release
+#
+# Optional. Defaults to "release".
+lib-profile-release = "wasm-release"
