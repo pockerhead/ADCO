@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE sources SET url = $1, title = $2, source_type = $3, fetched_at = $4, raw_text = $5 WHERE id = $6",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "107fb6f9d60eb04f5721ef2e8ba2da2e5b81ee80fde858d948e8d27c132e4f4a"
+}

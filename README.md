@@ -157,21 +157,29 @@ cargo run
 ```
 
 ### В разработке (следующие итерации)
-- [ ] **HTTP API** - REST endpoints для админки
+- [ ] **Axum веб-сервер** - HTTP API + Leptos SSR интеграция
+- [ ] **Leptos админ панель** - Rust full-stack веб-интерфейс с server functions
+- [ ] **Мониторинг pipeline** - Real-time статус оркестратора через админку
 - [ ] **Telegram публикация** - Bot API интеграция
 - [ ] **Scheduler** - Автоматические публикации по расписанию
 - [ ] **Metrics collection** - Аналитика просмотров/реакций
-- [ ] **Web админка** - Интерфейс управления
 
 ## Технологический стек
 
 ### Backend (Rust)
 - **Runtime**: `tokio` (async/await)
+- **Web Server**: `axum` (HTTP API + Leptos SSR)
 - **Database**: `sqlx` (PostgreSQL + compile-time checks)
 - **LLM**: `rig-core` + `rig-postgres` (Unified LLM API)
 - **Parsing**: `scraper`, `readability`, `pdf-extract`
 - **Scraping**: `headless_chrome` для динамического контента
 - **HTTP Client**: `reqwest` с TLS поддержкой
+
+### Frontend (Rust + WASM)
+- **Framework**: `leptos` (reactive UI с server functions)
+- **Build Tool**: `trunk` (live-reload development)
+- **Styling**: Планируется TailwindCSS
+- **State**: Fine-grained reactivity без virtual DOM
 
 ### Database
 - **Core**: `PostgreSQL 15+`

@@ -13,12 +13,12 @@ pub struct EmbeddingsRepository {
 }
 
 impl EmbeddingsRepository {
-    pub fn new(pg_pool: PgPool) -> Self {
+    pub fn new(pg_pool: &PgPool) -> Self {
         let api_key = std::env::var("OPEN_AI_API_KEY").unwrap_or_default();
         let client = openai::Client::new(&api_key);
         let model =
             openai::EmbeddingModel::new(client, openai::embedding::TEXT_EMBEDDING_3_SMALL, 1536);
-        Self { pg_pool, model }
+        Self { pg_pool: pg_pool.clone(), model }
     }
 
     pub async fn save_chunks(&self, chunks: Vec<Chunk>) -> Result<(), anyhow::Error> {
@@ -26,9 +26,9 @@ impl EmbeddingsRepository {
             PostgresVectorStore::with_defaults(self.model.clone(), self.pg_pool.clone());
 
         // Process chunks one by one to avoid token limit
-        for chunk in chunks {
+        for chunk_batch in chunks.chunks(5) {
             let documents = EmbeddingsBuilder::new(self.model.clone())
-                .documents(vec![chunk])  // Process single chunk at a time
+                .documents(chunk_batch.to_vec())  // process chunks in batches
                 .unwrap()
                 .build()
                 .await?;

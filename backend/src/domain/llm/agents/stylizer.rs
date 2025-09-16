@@ -23,7 +23,7 @@ impl Stylizer {
     pub async fn stylize(
         &self,
         topic: String,
-        context: String,
+        sources: String,
     ) -> Result<StylizerResult, anyhow::Error> {
         dotenv().ok();
         let api_key = std::env::var("OPEN_AI_API_KEY")?;
@@ -59,6 +59,7 @@ Format & structure:
   4) Closing — relatable analogy, life example, or thought-provoking question
   5) List of sources in the format: <b>Источники:</b>\n\n dotted list of source_title - source_url.
 - Do not add calls to action (no 'subscribe', 'read more', etc.).
+- Avoid incomplete sources in the list of sources such as '• Information dynamics and the arrow of time - http://.'(missing the hostname in url)
 
 Style:
 - Voice: curious science enthusiast talking to friends; warm, engaging, accessible
@@ -94,7 +95,7 @@ Quality gate:
             .max_tokens(800)
             .build();
 
-        let prompt = format!("Write the post about the given research result:\n{topic}.\n\nProvide Telegram post in HTML format. Post must be less than {POST_MAX_CHARACTERS_LENGTH} characters (including spaces and HTML formatting).");
+        let prompt = format!("Write the post about the given research result:\n{topic}.\n\nSources:\n\n{sources}.\n\nProvide Telegram post in HTML format. Post must be less than {POST_MAX_CHARACTERS_LENGTH} characters (including spaces and HTML formatting).");
 
         // Prompt the agent and print the response
         let response = agent.prompt(prompt).await?;

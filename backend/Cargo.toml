@@ -14,6 +14,8 @@ tower = "0.4"
 tower-http = { version = "0.5", features = ["cors", "trace"] }
 hyper = "1.0"
 
+# OnceCell
+once_cell = "^0"
 
 # Database
 sqlx = { version = "^0", features = [
@@ -52,10 +54,10 @@ chrono = { version = "0.4", features = ["serde"] }
 
 # Telegram bot
 teloxide = { version = "0.17.0", features = ["macros"] }
-log = "0.4"
 pretty_env_logger = "0.5"
 
-# Logging
+# Logging and stdio
+log = "0.4"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 

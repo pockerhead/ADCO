@@ -2,7 +2,7 @@ use dotenvy::dotenv;
 use rig::{
     client::CompletionClient,
     completion::Prompt,
-    providers::anthropic::{self, CLAUDE_3_5_SONNET},
+    providers::anthropic::{self},
 };
 use serde::{Deserialize, Serialize};
 

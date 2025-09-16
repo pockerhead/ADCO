@@ -1,15 +1,16 @@
 use dotenvy::dotenv;
-use rig::{
-    client::CompletionClient, completion::Prompt, providers::openai
-};
-use serde::{Deserialize, Serialize};
-use rand::seq::IndexedRandom;
 use rand::rng;
+use rand::seq::IndexedRandom;
+use rig::{client::CompletionClient, completion::Prompt, providers::openai};
+use serde::{Deserialize, Serialize};
+use std::io::{self, Write};
+use tracing::info;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TopicGeneratorResult {
     pub topic: String,
-    pub search_query: String,
+    pub full_search_query: String,
+    pub short_search_query: String,
 }
 
 pub struct TopicGenerator {}
@@ -30,13 +31,24 @@ impl TopicGenerator {
             .preamble("You are a helpful assistant that generates a topic for a blog post.")
             .max_tokens(300)
             .build();
-
-        let today_date_string: &str = &(chrono::Utc::now().format("%Y-%m-%d").to_string());
-        let themes: Vec<&str> = vec!["brain-computer interfaces", "physics", "brain biology", "neuroscience", "cognitive science", "AI"];
-        let mut rng = rng();
-        let random_theme = themes.choose(&mut rng).unwrap();
-        println!("========== Random theme: {}", random_theme);
-        let prompt: String = format!(
+        let is_interactive_mode = std::env::var("IS_INTERACTIVE_MODE")
+            .unwrap_or("false".to_string())
+            .parse::<bool>()
+            .unwrap_or(false);
+        info!("Interactive mode: {}", is_interactive_mode);
+        let mut result: TopicGeneratorResult;
+        loop {
+            let mut rng = rng();
+            let random_theme = TOPIC_THEMES.choose(&mut rng).unwrap();
+            info!("========== Random theme: {}", random_theme);
+            if is_interactive_mode {
+                info!("Continue or generate new random theme? (y/N): ");
+                if !self.confirm_continue().await {
+                    info!("Generating new random theme...");
+                    continue;
+                }
+            }
+            let prompt: String = format!(
             "Generate an abstract, timeless topic for a popular science blog post about {random_theme}.
 
             IMPORTANT RULES:
@@ -60,16 +72,112 @@ impl TopicGenerator {
 
             Provide result in pure JSON format with the following fields:
             topic (an intriguing, timeless question or concept about {random_theme}),
-            search_query (abstract keywords for finding relevant scientific sources, no dates).
+            full_search_query (abstract keywords for finding relevant scientific sources, no dates),
+            short_search_query (just one keyword or sentence, no dates).
 
             Do not include any extra text, explanations, or markdown."
-        );        // Prompt the agent and print the response
-        let response = agent
-            .prompt(prompt.to_string())
-            .await?;
+            ); // Prompt the agent and print the response
+            loop {
+                let response = agent.prompt(prompt.to_string()).await?;
 
-        let result = serde_json::from_str::<TopicGeneratorResult>(&response)?;
-
+                result = serde_json::from_str::<TopicGeneratorResult>(&response)?;
+                info!("========== Result: {}", result.topic);
+                info!("========== Full search query: {}", result.full_search_query);
+                info!(
+                    "========== Short search query: {}",
+                    result.short_search_query
+                );
+                if is_interactive_mode {
+                    info!("Continue or generate new topic? (y/N): ");
+                    if !self.confirm_continue().await {
+                        info!("Generating new topic...");
+                        continue;
+                    }
+                }
+                break;
+            }
+            break;
+        }
         Ok(result)
     }
+
+    async fn confirm_continue(&self) -> bool {
+        io::stdout().flush().unwrap();
+
+        let mut input = String::new();
+        io::stdin().read_line(&mut input).unwrap();
+
+        matches!(input.trim().to_lowercase().as_str(), "y" | "yes")
+    }
 }
+
+const TOPIC_THEMES: &[&str] = &[
+    // Мозг и нейротех
+    "brain-computer interfaces",
+    "neural decoding",
+    "neuroplasticity",
+    "synaptic mechanisms",
+    "memory consolidation",
+    "predictive brain",
+    "consciousness",
+    "sleep and dreams",
+    // Когнитивные науки
+    "cognitive biases",
+    "decision making",
+    "attention and focus",
+    "language processing",
+    "spatial navigation",
+    "temporal perception",
+    "social cognition",
+    // Нейронауки
+    "neurotransmitters",
+    "brain networks",
+    "neural development",
+    "brain rhythms",
+    "sensory processing",
+    "motor control",
+    "neural computation",
+    // AI и машинное обучение
+    "artificial neural networks",
+    "deep learning",
+    "reinforcement learning",
+    "neural architecture",
+    "brain-inspired AI",
+    "spiking neural networks",
+    // Физика и математика
+    "quantum mechanics",
+    "particle physics",
+    "relativity",
+    "thermodynamics",
+    "waves and vibrations",
+    "chaos theory",
+    "symmetry in nature",
+    "mathematical patterns",
+    // Биология и эволюция
+    "evolutionary biology",
+    "genetic algorithms",
+    "protein folding",
+    "cellular automata",
+    "ecosystem dynamics",
+    "biomechanics",
+    "molecular biology",
+    // Космос и астрофизика
+    "black holes",
+    "dark matter",
+    "exoplanets",
+    "stellar evolution",
+    "cosmic rays",
+    "gravitational waves",
+    "space-time",
+    "astrobiology",
+    "cosmic inflation",
+    // Инженерия и технологии
+    "robotics",
+    "smart materials",
+    "nanotechnology",
+    "renewable energy",
+    "architecture and design",
+    "aerodynamics",
+    "sensors and automation",
+    "biomimetics",
+];
