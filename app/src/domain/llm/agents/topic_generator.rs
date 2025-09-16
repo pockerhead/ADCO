@@ -5,6 +5,7 @@ use rig::{client::CompletionClient, completion::Prompt, providers::openai};
 use serde::{Deserialize, Serialize};
 use std::io::{self, Write};
 use tracing::info;
+use crate::appstate::APP_STATE;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TopicGeneratorResult {
@@ -31,17 +32,14 @@ impl TopicGenerator {
             .preamble("You are a helpful assistant that generates a topic for a blog post.")
             .max_tokens(300)
             .build();
-        let is_interactive_mode = std::env::var("IS_INTERACTIVE_MODE")
-            .unwrap_or("false".to_string())
-            .parse::<bool>()
-            .unwrap_or(false);
-        info!("Interactive mode: {}", is_interactive_mode);
+
+        info!("Interactive mode: {}", APP_STATE.is_interactive_mode);
         let mut result: TopicGeneratorResult;
         loop {
             let mut rng = rng();
             let random_theme = TOPIC_THEMES.choose(&mut rng).unwrap();
             info!("========== Random theme: {}", random_theme);
-            if is_interactive_mode {
+            if APP_STATE.is_interactive_mode {
                 info!("Continue or generate new random theme? (y/N): ");
                 if !self.confirm_continue().await {
                     info!("Generating new random theme...");
@@ -87,7 +85,7 @@ impl TopicGenerator {
                     "========== Short search query: {}",
                     result.short_search_query
                 );
-                if is_interactive_mode {
+                if APP_STATE.is_interactive_mode {
                     info!("Continue or generate new topic? (y/N): ");
                     if !self.confirm_continue().await {
                         info!("Generating new topic...");

@@ -8,14 +8,20 @@ use tracing::info;
 #[derive(Debug, Clone)]
 pub struct AppState {
     pg_pool: OnceCell<Arc<PgPool>>,
+    pub is_interactive_mode: bool,
 }
 
 pub static APP_STATE: Lazy<AppState> = Lazy::new(|| AppState::new());
 
 impl AppState {
     pub fn new() -> Self {
+        let is_interactive_mode = std::env::var("IS_INTERACTIVE_MODE")
+        .unwrap_or("false".to_string())
+        .parse::<bool>()
+        .unwrap_or(false);
         Self {
             pg_pool: OnceCell::const_new(),
+            is_interactive_mode: is_interactive_mode,
         }
     }
 
