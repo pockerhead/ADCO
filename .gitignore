@@ -10,6 +10,7 @@
 # Cargo build artifacts
 app/target/
 app/Cargo.lock
+target/
 
 # Rust debug info
 app/**/*.pdb

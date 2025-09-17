@@ -1,6 +1,8 @@
 # ADCO - Async Dev Content Orchestrator
 
-Автономная система генерации и публикации постов для Telegram канала с использованием LLM агентов, RAG системы и векторного поиска.
+**Full-Stack Rust** система генерации и публикации постов для Telegram канала с использованием LLM агентов, RAG системы и векторного поиска.
+
+**Обновлено (17.09.2025):** Интегрирован Leptos SSR для современного веб-интерфейса
 
 ## Описание
 
@@ -11,6 +13,14 @@ ADCO - интеллектуальный оркестратор контента,
 - Использует RAG для контекстуальной генерации с векторным поиском
 
 ## Архитектура системы
+
+### Workspace Structure
+```
+ADCO/
+├── backend/     # Rust API server (Axum + SQLx + RIG)
+├── frontend/    # Leptos SSR + WASM hydration
+└── shared/      # Common types with conditional compilation
+```
 
 ### Поток обработки
 
@@ -85,8 +95,12 @@ ADCO/
 ### Предварительные требования
 
 ```bash
-# Rust toolchain
+# Rust toolchain + WASM target
 rustc 1.88.0+
+rustup target add wasm32-unknown-unknown
+
+# Leptos CLI
+cargo install cargo-leptos
 
 # PostgreSQL с расширением pgvector
 postgresql-15+
@@ -122,6 +136,19 @@ ANTHROPIC_API_KEY=your_anthropic_api_key
 ```
 
 4. **Запуск backend**
+```bash
+cd backend
+cargo run
+```
+
+5. **Запуск frontend (Leptos SSR)**
+```bash
+cd frontend
+cargo leptos watch
+# Frontend доступен на http://127.0.0.1:3000
+```
+
+### Development
 ```bash
 cd backend
 cargo build

@@ -1,0 +1,21 @@
+[package]
+name = "adco-shared"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+uuid = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+sqlx = { workspace = true, optional = true }
+
+[features]
+backend = [
+    "dep:sqlx",
+]
